@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS sys_user;
 DROP TABLE IF EXISTS sys_email_verify;
 
 DROP TABLE IF EXISTS broadcast;
+
 /*==============================================================*/
 /* Table: sys_log_audit                                         */
 /*==============================================================*/
@@ -58,6 +59,7 @@ CREATE TABLE sys_email_verify
    create_date          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
    PRIMARY KEY (id)
 )
+AUTO_INCREMENT=1001 DEFAULT CHARACTER SET=UTF8;
 
 /*==============================================================*/
 /* Table: broadcast(广播)                                          */
@@ -70,12 +72,13 @@ CREATE TABLE broadcast
    update_date          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
    starte_date          DATETIME COMMENT '广播上线时间',
    end_date             DATETIME COMMENT '广播下线时间',
-   state                CHAR(1) NOT NULL DEFAULT 'A' COMMENT 'A-在用，X-失效',
+   state                CHAR(1) NOT NULL DEFAULT 'U' COMMENT 'U-未启用, A-在用，X-失效',
    platform             CHAR(10) NOT NULL DEFAULT 'web' COMMENT '广播上线平台',
    title                VARCHAR(150) NOT NULL DEFAULT '' COMMENT '广播的标题',
    url                  VARCHAR(255) NOT NULL DEFAULT '' COMMENT '广播的地址',
    PRIMARY KEY (id)
 )
+AUTO_INCREMENT=1001 DEFAULT CHARACTER SET=UTF8;
 
 /*==============================================================*/
 /* Table: system_message(系统消息)                               */
@@ -87,8 +90,9 @@ CREATE TABLE system_message
    create_date          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
    update_date          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
    start_date           DATETIME COMMENT '系统消息发送时间',
-   state                CHAR(1) NOT NULL DEFAULT 'A' COMMENT 'A-在用，X-失效',
+   state                CHAR(1) NOT NULL DEFAULT 'U' COMMENT 'U-未启用, A-在用，X-失效',
    title                VARCHAR(150) NOT NULL DEFAULT '' COMMENT '系统消息的标题',
    url                  VARCHAR(255) NOT NULL DEFAULT '' COMMENT '系统消息的地址',
    PRIMARY KEY (id)
 )
+AUTO_INCREMENT=1001 DEFAULT CHARACTER SET=UTF8;
