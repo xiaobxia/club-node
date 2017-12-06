@@ -13,12 +13,4 @@ module.exports = class BroadcastService extends BaseService {
     const broadcasts = await broadcastORM.getRecords();
     return broadcasts;
   }
-
-  async logout(userInfo) {
-    const logAuditORM = this.ORMs.logAuditORM(this.connection);
-    await logAuditORM.addLog({
-      logType: 'logout',
-      ...userInfo
-    });
-  }
 };

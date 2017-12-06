@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS sys_email_verify;
 
 DROP TABLE IF EXISTS broadcast;
 
+DROP TABLE IF EXISTS system_message;
+
 /*==============================================================*/
 /* Table: sys_log_audit                                         */
 /*==============================================================*/
