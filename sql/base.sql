@@ -27,7 +27,7 @@ AUTO_INCREMENT=1001 DEFAULT CHARACTER SET=UTF8;
 /*==============================================================*/
 CREATE TABLE sys_user
 (
-   user_id              INT(11) NOT NULL AUTO_INCREMENT,
+   id                   INT(11) NOT NULL AUTO_INCREMENT,
    user_name            VARCHAR(60) NOT NULL COMMENT '登陆账户名',
    password             VARCHAR(60) NOT NULL COMMENT '登陆账户密码',
    mobile               VARCHAR(20) NOT NULL DEFAULT '',
@@ -42,7 +42,7 @@ CREATE TABLE sys_user
    unlock_date          DATETIME,
    create_date          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
    update_date          DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-   PRIMARY KEY (user_id)
+   PRIMARY KEY (id)
 )
 AUTO_INCREMENT=1001 DEFAULT CHARSET=UTF8;
 
