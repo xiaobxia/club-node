@@ -1,9 +1,9 @@
 /**
  * Created by xiaobxia on 2017/10/31.
  */
-const AuthService = require('./sys/authService');
-const UserService = require('./sys/userService');
-const BroadcastService = require('./sys/broadcastService');
+const AuthService = require('./list/authService');
+const UserService = require('./list/userService');
+const BroadcastService = require('./list/broadcastService');
 
 module.exports = {
   authService(connection){
