@@ -20,9 +20,13 @@ module.exports = class AuthController extends BaseController {
       let connection = null;
       try {
         connection = await this.mysqlGetConnection();
+        //登录
         const authService = this.services.authService(connection);
+        //返回用户信息
         let user = await authService.login(data.account, data.password);
-        let userInfo = {userId: user.userId, userName: user.userName, active: user.active};
+        //转换格式
+        user = this.localUtil.keyToCamelCase(user);
+        const userInfo = {userUuid: user.uuid, userName: user.userName, active: user.active};
         this.setSessionUser(ctx.session, userInfo);
         this.wrapResult(ctx, {data: {login: true, ...userInfo}});
         this.mysqlRelease(connection);
@@ -56,26 +60,26 @@ module.exports = class AuthController extends BaseController {
    */
   logout() {
     return async (ctx) => {
-      const userInfoRaw = this.getSessionUser(ctx.session);
-      const userInfo = {
-        userId: userInfoRaw.userId,
-        userName: userInfoRaw.userName
-      };
-      if (userInfo) {
-        let connection = null;
-        try {
-          connection = await this.mysqlGetConnection();
-          this.mysqlBeginTransaction(connection);
-          const authService = this.services.authService(connection);
-          await authService.logout(userInfo);
-          this.mysqlCommit(connection);
-          this.mysqlRelease(connection);
-        } catch (error) {
-          this.mysqlRollback(connection);
-          this.mysqlRelease(connection);
-          throw error;
-        }
-      }
+      // const userInfoRaw = this.getSessionUser(ctx.session);
+      // const userInfo = {
+      //   userId: userInfoRaw.userId,
+      //   userName: userInfoRaw.userName
+      // };
+      // if (userInfo) {
+      //   let connection = null;
+      //   try {
+      //     connection = await this.mysqlGetConnection();
+      //     this.mysqlBeginTransaction(connection);
+      //     const authService = this.services.authService(connection);
+      //     await authService.logout(userInfo);
+      //     this.mysqlCommit(connection);
+      //     this.mysqlRelease(connection);
+      //   } catch (error) {
+      //     this.mysqlRollback(connection);
+      //     this.mysqlRelease(connection);
+      //     throw error;
+      //   }
+      // }
       ctx.session = null;
       this.wrapResult(ctx);
     }
