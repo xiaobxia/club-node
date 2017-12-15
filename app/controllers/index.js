@@ -4,9 +4,11 @@
 const AuthController = require('./list/authController');
 const UserController = require('./list/userController');
 const BroadcastController = require('./list/broadcastController');
+const ArticleController = require('./list/articleController');
 
 module.exports = {
   authController: new AuthController(),
   userController: new UserController(),
-  broadcastController: new BroadcastController()
+  broadcastController: new BroadcastController(),
+  articleController: new ArticleController()
 };

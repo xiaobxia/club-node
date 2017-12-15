@@ -6,13 +6,19 @@ module.exports = class UserORM extends BaseORM {
   constructor(connection) {
     super(connection);
     this.defaultTable = 'sys_user';
-    this.defaultSelect = ['user_id', 'user_name'];
   }
 
   //查
   getRawRecordsByAccount(account) {
     return this.query({
       sql: `SELECT * FROM ${this.defaultTable} WHERE state='A' AND (email=? OR mobile=? OR user_name=?)`,
+      values: [account, account, account]
+    });
+  }
+
+  getAllRawRecordsByAccount(account) {
+    return this.query({
+      sql: `SELECT * FROM ${this.defaultTable} WHERE (email=? OR mobile=? OR user_name=?)`,
       values: [account, account, account]
     });
   }

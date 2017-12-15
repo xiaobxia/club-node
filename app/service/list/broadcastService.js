@@ -10,7 +10,11 @@ module.exports = class BroadcastService extends BaseService {
 
   async getBroadcasts() {
     const broadcastORM = this.ORMs.broadcastORM(this.connection);
-    const broadcasts = await broadcastORM.getRecords();
+    const broadcasts = await broadcastORM.select({
+      where: {
+        state: 'A'
+      }
+    });
     return broadcasts;
   }
 };

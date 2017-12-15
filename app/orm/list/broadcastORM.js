@@ -7,10 +7,4 @@ module.exports = class BroadcastORM extends BaseORM {
     super(connection);
     this.defaultTable = 'broadcast';
   }
-
-  getRecords() {
-    return this.query({
-      sql: `SELECT uuid,platform,title,url FROM ${this.defaultTable} WHERE state='A'`,
-    });
-  }
 };
