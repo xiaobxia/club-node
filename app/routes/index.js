@@ -14,6 +14,7 @@ const router = new Router({
 router.post('/sys/auth/login', controllers.authController.login());
 router.get('/sys/auth/checkLogin', controllers.authController.checkLogin());
 router.get('/sys/auth/logout', controllers.authController.logout());
+router.get('/sys/auth/getDeviceId', controllers.authController.getDeviceId());
 //注册
 router.get('/sys/user/register/active', controllers.userController.registerActive());
 router.get('/sys/user/register/result', controllers.userController.registerResult());
@@ -23,6 +24,7 @@ router.get('/sys/user/sendActiveEmail', controllers.userController.sendActiveEma
 router.get('/broadcasts', controllers.broadcastController.list());
 //文章
 router.get('/articles', controllers.articleController.list());
+router.post('/articles/add', controllers.articleController.add());
 
 
 module.exports = router;

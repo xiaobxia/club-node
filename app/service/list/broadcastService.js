@@ -8,12 +8,10 @@ module.exports = class BroadcastService extends BaseService {
     super(connection);
   }
 
-  async getBroadcasts() {
+  async getBroadcasts(filter, start, offset) {
     const broadcastORM = this.ORMs.broadcastORM(this.connection);
     const broadcasts = await broadcastORM.select({
-      where: {
-        state: 'A'
-      }
+      where: filter
     });
     return broadcasts;
   }

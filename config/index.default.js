@@ -28,6 +28,10 @@ module.exports = {
     database: "",
 
   },
+  redis: {
+    host: '',
+    port: 0
+  },
   logger: {
     //默认
     dir: path.resolve(__dirname, '../logs/'),

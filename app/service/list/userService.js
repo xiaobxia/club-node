@@ -4,11 +4,32 @@
 const md5 = require('md5');
 const moment = require('moment');
 const BaseService = require('../baseService');
+const Promise = require("bluebird");
 
 
 module.exports = class UserService extends BaseService {
   constructor(connection) {
     super(connection);
+  }
+
+  async getUser(filter) {
+    const errorMessage = this.localConst.errorMessage;
+    const userORM = this.ORMs.userORM(this.connection);
+    const result= await userORM.select({
+      where: filter
+    });
+    this.checkDBResult(result, errorMessage.NO_USER);
+    return result[0];
+  }
+
+  async getUserInfo() {
+    const errorMessage = this.localConst.errorMessage;
+    const sysUserORM = this.ORMs.sysUserORM(this.connection);
+    const result= await sysUserORM.select({
+      where: filter
+    });
+    this.checkDBResult(result, errorMessage.NO_USER);
+    return result[0];
   }
 
   async register(userInfo) {

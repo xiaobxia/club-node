@@ -6,6 +6,12 @@ const logger = require('./common/logger');
 const mailer = require('nodemailer');
 const emailConfig = config.email;
 const mysqlPool = mysql.createPool(config.mysql);
+const redis = require("redis");
+const client = redis.createClient(config.redis);
+const Promise = require('bluebird');
+
+Promise.promisifyAll(redis.RedisClient.prototype);
+Promise.promisifyAll(redis.Multi.prototype);
 
 module.exports = class BaseModel {
   constructor() {
@@ -15,6 +21,7 @@ module.exports = class BaseModel {
     this.localConst = localConst;
     this.mysqlPool = mysqlPool;
     this.isDebug = config.server.debug;
+    this.redisClient = client;
   }
 
   sendMail(option) {
@@ -29,5 +36,23 @@ module.exports = class BaseModel {
         }
       });
     });
+  }
+
+  throwError(errorMsg) {
+    let error = new Error(errorMsg);
+    error.type = this.localConst.NOT_SYS_ERROR;
+    throw error;
+  }
+
+  checkDBResult(result, ifNullMsg, ifExistMsg) {
+    if (!result.length) {
+      if (ifNullMsg) {
+        this.throwError(ifNullMsg);
+      }
+    } else {
+      if (ifExistMsg) {
+        this.throwError(ifExistMsg);
+      }
+    }
   }
 };

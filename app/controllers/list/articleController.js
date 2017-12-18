@@ -2,6 +2,7 @@
  * Created by xiaobxia on 2017/12/13.
  */
 const BaseController = require('../baseController');
+const Promise = require("bluebird");
 
 const filterListModel = {
   articleType: '',
@@ -11,9 +12,9 @@ const filterListModel = {
 };
 
 const addModel = {
-  userUuid: '',
+  userToken: '',
   articleType: '',
-  articleTags: '1|2',
+  articleTags: '',
   title: '',
   content: ''
 };
@@ -130,16 +131,21 @@ module.exports = class ArticleController extends BaseController {
         articleType: {type: 'string', required: true},
         title: {type: 'string', required: true},
         content: {type: 'string', required: true},
-        userUuid: {type: 'string', required: true}
+        userToken: {type: 'string', required: true}
       }, data);
       let connection = null;
       try {
         connection = await this.mysqlGetConnection();
-        const userService = this.services.userService(connection);
-        const user = await userService.getUser({uuid: data.userUuid});
+        let user = await this.redisClient.getAsync(data.userToken);
+        if (!user) {
+          ctx.throw(401, 'access_denied');
+        }
+        user = JSON.parse(user);
+        // const userService = this.services.userService(connection);
+        // const user = await userService.getUser({uuid: data.userUuid});
         const articleService = this.services.articleService(connection);
         //添加记录
-        delete data.userUuid;
+        delete data.userToken;
         data.userId = user.id;
         await articleService.addArticle(this.localUtil.keyToHyphen(data));
         this.wrapResult(ctx, {data: {success: true}});
@@ -196,6 +202,7 @@ module.exports = class ArticleController extends BaseController {
       }
     }
   }
+
   /**
    * GET
    */

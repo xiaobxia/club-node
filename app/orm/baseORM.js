@@ -1,5 +1,5 @@
 const BaseModel = require('../baseModel');
-
+const Promise = require("bluebird");
 
 module.exports = class BaseORM extends BaseModel {
   constructor(connection) {
@@ -98,10 +98,10 @@ module.exports = class BaseORM extends BaseModel {
     const _table = _option.table || this.defaultTable;
     const _start = _option.start || this.defaultStart;
     const _offset = _option.offset || this.defaultOffset;
-    const queryObj = this.formatWhere(`SELECT ?? FROM ${_table} {WHERE} ORDER BY id DESC LIMIT ?,?`, _where, _whereType);
+    const queryObj = this.formatWhere(`SELECT id FROM ${_table} {WHERE} ORDER BY id DESC LIMIT ?,?`, _where, _whereType);
     return this.query({
       sql: queryObj.sql,
-      values: [_select, ...queryObj.values, _start, _offset]
+      values: [...queryObj.values, _start, _offset]
     }).then((results) => {
       if (!results.length) {
         return results;
@@ -110,11 +110,34 @@ module.exports = class BaseORM extends BaseModel {
         for (let k = 0, len = results.length; k < len; k++) {
           ids.push(results[k]['id']);
         }
-        return this.getAllRawRecordsByIds(ids);
+        return this.getAllRecordsByIds(ids, _select);
       }
     });
   }
 
+  pageSelectIds(option) {
+    const _option = option || {};
+    const _where = _option.where || this.defaultWhere;
+    const _whereType = _option.whereType || this.defaultWhereType;
+    const _table = _option.table || this.defaultTable;
+    const _start = _option.start || this.defaultStart;
+    const _offset = _option.offset || this.defaultOffset;
+    const queryObj = this.formatWhere(`SELECT id FROM ${_table} {WHERE} ORDER BY id DESC LIMIT ?,?`, _where, _whereType);
+    return this.query({
+      sql: queryObj.sql,
+      values: [...queryObj.values, _start, _offset]
+    }).then((results) => {
+      if (!results.length) {
+        return results;
+      } else {
+        let ids = [];
+        for (let k = 0, len = results.length; k < len; k++) {
+          ids.push(results[k]['id']);
+        }
+        return ids;
+      }
+    });
+  }
 
   count(option) {
     const _option = option || {};
@@ -194,10 +217,28 @@ module.exports = class BaseORM extends BaseModel {
     return this.query(`SELECT COUNT(*) AS count FROM ${this.defaultTable}`);
   }
 
-  getAllRawRecordsByIds(ids) {
+  getAllRecordsByIds(ids, select) {
+    const _select = select || this.defaultSelect;
     return this.query({
-      sql: `SELECT * FROM ${this.defaultTable} WHERE id IN (?) ORDER BY id DESC`,
-      values: [ids]
+      sql: `SELECT ?? FROM ${this.defaultTable} WHERE id IN (?) ORDER BY id DESC`,
+      values: [_select, ids]
+    });
+  }
+
+  getAllRecordIds(start, offset) {
+    return this.query({
+      sql: `SELECT id FROM ${this.defaultTable} ORDER BY id DESC LIMIT ?,?`,
+      values: [start, offset]
+    }).then((results) => {
+      if (!results.length) {
+        return results;
+      } else {
+        let ids = [];
+        for (let k = 0, len = results.length; k < len; k++) {
+          ids.push(results[k]['id']);
+        }
+        return ids;
+      }
     });
   }
 
@@ -213,7 +254,7 @@ module.exports = class BaseORM extends BaseModel {
         for (let k = 0, len = results.length; k < len; k++) {
           ids.push(results[k]['id']);
         }
-        return this.getAllRawRecordsByIds(ids);
+        return this.getAllRecordsByIds(ids);
       }
     });
   }

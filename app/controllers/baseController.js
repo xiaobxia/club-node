@@ -1,6 +1,7 @@
 const Parameter = require('../common/validate');
 const BaseModel = require('../baseModel');
 const services = require('../service');
+const Promise = require("bluebird");
 
 const p = new Parameter();
 

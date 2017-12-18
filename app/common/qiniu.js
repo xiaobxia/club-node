@@ -1,4 +1,5 @@
 const qiniu = require("qiniu");
+const Promise = require("bluebird");
 /**
  * @param config
  * accessKey
