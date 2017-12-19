@@ -154,7 +154,8 @@ module.exports = class UserController extends BaseController {
         const session = this.getSessionUser(ctx.session);
         //得到用户基本信息
         const userService = this.services.userService(connection);
-        const userBaseInfo = await userService.getUserBaseInfo(session, queryData.userName);
+        let userBaseInfo = await userService.getUserBaseInfo(session, queryData.userName);
+        userBaseInfo = this.localUtil.keyToCamelCase(userBaseInfo);
         this.wrapResult(ctx, {data: userBaseInfo});
         this.mysqlRelease(connection);
       } catch (error) {
