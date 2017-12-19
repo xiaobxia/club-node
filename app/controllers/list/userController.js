@@ -133,4 +133,38 @@ module.exports = class UserController extends BaseController {
       }
     }
   }
+
+  /**
+   * GET
+   * userId
+   * userName
+   */
+  getUserBaseInfo() {
+    return async (ctx) => {
+      const query = ctx.request.query;
+      const queryData = {
+        userName: query.userName
+      };
+      this.validate(ctx, {
+        userName: {type: 'string', required: true}
+      }, queryData);
+      let connection = null;
+      try {
+        connection = await this.mysqlGetConnection();
+        const session = this.getSessionUser(ctx.session);
+        //得到用户基本信息
+        const userService = this.services.userService(connection);
+        const userBaseInfo = await userService.getUserBaseInfo(session, queryData.userName);
+        this.wrapResult(ctx, {data: userBaseInfo});
+        this.mysqlRelease(connection);
+      } catch (error) {
+        this.mysqlRelease(connection);
+        if (error.type) {
+          this.wrapResult(ctx, {data: {msg: error.message}});
+        } else {
+          throw error;
+        }
+      }
+    };
+  }
 };

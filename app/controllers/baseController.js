@@ -42,6 +42,10 @@ module.exports = class BaseController extends BaseModel {
     ctx.body = _responseData;
   }
 
+  wrapError(ctx, errorMsg) {
+    this.wrapResult(ctx, {message: errorMsg, status: 1})
+  }
+
   getSessionUser(session) {
     return session[this.localConst.SESSION_KEY];
   }

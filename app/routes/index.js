@@ -25,6 +25,8 @@ router.get('/broadcasts', controllers.broadcastController.list());
 //文章
 router.get('/articles', controllers.articleController.list());
 router.post('/articles/add', controllers.articleController.add());
+//用户信息
+router.get('/userBaseInfo', controllers.userController.getUserBaseInfo());
 
 
 module.exports = router;

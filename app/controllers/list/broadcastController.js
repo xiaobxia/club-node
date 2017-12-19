@@ -14,12 +14,12 @@ module.exports = class BroadcastController extends BaseController {
         connection = await this.mysqlGetConnection();
         const broadcastService = this.services.broadcastService(connection);
         const broadcastList = await broadcastService.getBroadcasts({state: 'A'});
-        this.wrapResult(ctx, {data: {success: true, list: broadcastList}});
+        this.wrapResult(ctx, {data: {list: broadcastList}});
         this.mysqlRelease(connection);
       } catch (error) {
         this.mysqlRelease(connection);
         if (error.type) {
-          this.wrapResult(ctx, {data: {msg: error.message, success: false}});
+          this.wrapError(ctx, error.message);
         } else {
           throw error;
         }

@@ -11,8 +11,8 @@ const app = new Koa();
 const session_secret = config.server.session_secret;
 app.keys = [session_secret];
 const CONFIG = {
-  key: session_secret,
-  maxAge: 'session',
+  key: 'auth',
+  maxAge: 1000 * 60 * 60 * 24 * 3,
   overwrite: true,
   httpOnly: true,
   signed: true,

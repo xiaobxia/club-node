@@ -6,6 +6,7 @@ module.exports = {
     ACCOUNT_OR_PWD_ERROR: '登录名或登录密码错误',
     UNACTIVE_USER: '当前用户已注册但是未激活',
     NO_USER: '未知用户',
+    USER_NOT_LOGIN: '用户未登录',
     ALREADY_ACTIVE: '用户已是激活状态',
     LOCK_USER: '当前用户被锁定',
     DUPLICATE_USER_NAME: '此用户名已被注册',

@@ -15,8 +15,8 @@ module.exports = class LoginService extends BaseService {
    */
   async login(account, password) {
     const errorMessage = this.localConst.errorMessage;
-    const userORM = this.ORMs.userORM(this.connection);
-    let dbResult = await userORM.getRawRecordsByAccount(account);
+    const sysUserORM = this.ORMs.sysUserORM(this.connection);
+    let dbResult = await sysUserORM.getRawRecordsByAccount(account);
     this.checkDBResult(dbResult, errorMessage.ACCOUNT_OR_PWD_ERROR);
     let user = dbResult[0];
     const isForceLogin = user['force_login'] === 'Y';
@@ -28,13 +28,13 @@ module.exports = class LoginService extends BaseService {
     //判断解锁
     if (isLockBefore) {
       if (moment().isAfter(user['unlock_date'])) {
-        await userORM.getAllRawRecordById(user['id'], {
+        await sysUserORM.getAllRawRecordById(user['id'], {
           login_fail: 0,
           is_locked: 'N',
           unlock_date: null
         });
         //得到用户新状态
-        dbResult = await userORM.getAllRawRecordById(user['id']);
+        dbResult = await sysUserORM.getAllRawRecordById(user['id']);
         user = dbResult[0];
       } else {
         this.throwError(errorMessage.LOCK_USER);
@@ -44,7 +44,7 @@ module.exports = class LoginService extends BaseService {
     if (user['password'] === password) {
       //清空尝试，之前没锁定并且失败数不为0
       if (!isLockBefore && user['login_fail'] !==0) {
-        await userORM.updateRecordById(user['id'], {
+        await sysUserORM.updateRecordById(user['id'], {
           login_fail: 0,
           is_locked: 'N',
           unlock_date: null
@@ -65,7 +65,7 @@ module.exports = class LoginService extends BaseService {
           login_fail: 1 + user['login_fail']
         };
       }
-      await userORM.updateRecordById(user['id'], updateData);
+      await sysUserORM.updateRecordById(user['id'], updateData);
       this.throwError(errorMessage.ACCOUNT_OR_PWD_ERROR);
     }
   }

@@ -25,15 +25,11 @@ module.exports = class AuthController extends BaseController {
         const authService = this.services.authService(connection);
         //返回用户信息
         let user = await authService.login(data.account, data.password);
-        //得到用户基本信息
-        const userService = this.services.userService(connection);
-        let userBaseInfo =
-        //添加登录记录
-        const sysLogAuditService = this.services.sysLogAuditService(connection);
+        //创建token
         const token = md5(user.id + ctx.request.header['user_agent'] + (new Date().getTime()));
         const deviceId = ctx.cookies.get('device_id');
-        //无需等待
-        this.redisClient.setAsync(token, JSON.stringify(user));
+        //添加登录记录
+        const sysLogAuditService = this.services.sysLogAuditService(connection);
         sysLogAuditService.addSysLogAudit({
           'user_id': user.id,
           'log_type': 'login',
@@ -41,22 +37,33 @@ module.exports = class AuthController extends BaseController {
           'token': token,
           'device_id': deviceId
         });
-        //转换格式
-        user = this.localUtil.keyToCamelCase(user);
+        //得到用户基本信息
+        const userService = this.services.userService(connection);
+        let userBaseInfo = await userService.getUserInfo({
+          select: ['user_name', 'avatar', 'gender'],
+          where: {
+            state: 'A',
+            'user_id': user.id
+          }
+        });
+        //返回信息
         const userInfo = {
           userUuid: user.uuid,
-          userName: user.userName,
           active: user.active,
           token: token,
-          deviceId: deviceId
+          deviceId: deviceId,
+          gender: userBaseInfo.gender,
+          userName: userBaseInfo['user_name'],
+          avatar: userBaseInfo['avatar']
         };
-        this.setSessionUser(ctx.session, userInfo);
+        this.redisClient.setAsync(token + 'userInfo', JSON.stringify(userInfo));
+        this.setSessionUser(ctx.session, {token: token});
         this.wrapResult(ctx, {data: {login: true, ...userInfo}});
         this.mysqlRelease(connection);
       } catch (error) {
         this.mysqlRelease(connection);
         if (error.type) {
-          this.wrapResult(ctx, {data: {msg: error.message, login: false}});
+          this.wrapError(ctx, error.message);
         } else {
           throw error;
         }
@@ -69,12 +76,23 @@ module.exports = class AuthController extends BaseController {
    */
   checkLogin() {
     return async (ctx) => {
-      let userInfo = this.getSessionUser(ctx.session);
-      // session的id一般只有在使用缓存层的时候会用到
-      this.wrapResult(ctx, {data: {
-        isLogin: !!userInfo,
-        ...userInfo
-      }});
+      const session = this.getSessionUser(ctx.session);
+      if (!session) {
+        this.wrapResult(ctx, {
+          data: {
+            isLogin: false
+          }
+        });
+        return;
+      }
+      let userInfo = await this.redisClient.getAsync(session.token + 'userInfo');
+      userInfo = JSON.parse(userInfo);
+      this.wrapResult(ctx, {
+        data: {
+          isLogin: !!userInfo,
+          ...userInfo
+        }
+      });
     }
   }
 
@@ -83,26 +101,19 @@ module.exports = class AuthController extends BaseController {
    */
   logout() {
     return async (ctx) => {
-      // const userInfoRaw = this.getSessionUser(ctx.session);
-      // const userInfo = {
-      //   userId: userInfoRaw.userId,
-      //   userName: userInfoRaw.userName
-      // };
-      // if (userInfo) {
-      //   let connection = null;
-      //   try {
-      //     connection = await this.mysqlGetConnection();
-      //     this.mysqlBeginTransaction(connection);
-      //     const authService = this.services.authService(connection);
-      //     await authService.logout(userInfo);
-      //     this.mysqlCommit(connection);
-      //     this.mysqlRelease(connection);
-      //   } catch (error) {
-      //     this.mysqlRollback(connection);
-      //     this.mysqlRelease(connection);
-      //     throw error;
-      //   }
-      // }
+      const errorMessage = this.localConst.errorMessage;
+      const session = this.getSessionUser(ctx.session);
+      if (!session) {
+        this.wrapResult(ctx, {
+          data: {
+            success: false,
+            msg: errorMessage.USER_NOT_LOGIN
+          }
+        });
+        return;
+      }
+      const token = session.token;
+      this.redisClient.delAsync(token + 'userInfo');
       ctx.session = null;
       this.wrapResult(ctx);
     }
